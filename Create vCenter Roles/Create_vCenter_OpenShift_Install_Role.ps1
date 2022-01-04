@@ -93,7 +93,7 @@ $OpnShftvSpherePortGroup = @(
     'Network.Assign'
 )
 
-$OpenShiftInstallRole = New-VIRole -Name '$OpnShftvSpherePortGroup' -Privilege (Get-VIPrivilege -Id $OpnShftvSpherePortGroup) | Out-Null
+$OpenShiftInstallRole = New-VIRole -Name 'OpnShftvSpherePortGroup' -Privilege (Get-VIPrivilege -Id $OpnShftvSpherePortGroup) | Out-Null
 Write-Host "Creating vCenter role $OpenShiftInstallRole" -ForegroundColor Green
 
 $OpnShftVirtualMachineFolder = @(
