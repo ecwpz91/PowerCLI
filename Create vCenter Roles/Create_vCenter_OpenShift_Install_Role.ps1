@@ -4,13 +4,14 @@
 .DESCRIPTION
     This script is used to create a new roles on your vCenter server.
     The newly created role will be filled with the needed permissions for installing OpenShift Container Platform using the IPI Method.
-    The permissions are based on the documentation found here: https://docs.openshift.com/container-platform/4.6/installing/installing_vsphere/installing-vsphere-installer-provisioned.html#installation-vsphere-installer-infra-requirements_installing-vsphere-installer-provisioned
+    The permissions are based on the documentation found here: https://docs.openshift.com/container-platform/4.9/installing/installing_vsphere/installing-vsphere-installer-provisioned.html#installation-vsphere-installer-infra-requirements_installing-vsphere-installer-provisioned
 .OUTPUTS
     Results are printed to the console.
 .NOTES
     Author        Dean Lewis, https://vEducate.co.uk, Twitter: @saintdle
     
     Change Log    V1.00, 07/11/2020 - Initial version
+    Change Log    V2.00, 01/04/2021 - Updated for openshift release 4.9
 .LICENSE
     MIT License
     Copyright (c) 2020 Dean Lewis
@@ -51,29 +52,128 @@ $Credentials = New-Object System.Management.Automation.PSCredential -ArgumentLis
 Connect-VIServer -Server $vCenterServer -Credential $Credentials | Out-Null
 Write-Host "Connected to your vCenter server $vCenterServer" -ForegroundColor Green
 
-# Create OpenShift-Install role
-$OpenShiftInstallPrivilege = @(
+
+$OpnShftvSpherevCenter = @(
+    'Cns.Searchable',
+    'InventoryService.Tagging.AttachTag',
+    'InventoryService.Tagging.CreateCategory',
+    'InventoryService.Tagging.CreateTag',
+    'InventoryService.Tagging.DeleteCategory',
+    'InventoryService.Tagging.DeleteTag',
+    'InventoryService.Tagging.EditCategory',
+    'InventoryService.Tagging.EditTag',
+    'StorageProfile.View'
+)
+
+$OpenShiftInstallRole = New-VIRole -Name 'OpnShftvSpherevCenter' -Privilege (Get-VIPrivilege -Id $OpnShftvSpherevCenter) | Out-Null
+Write-Host "Creating vCenter role $OpenShiftInstallRole" -ForegroundColor Green
+
+$OpnShftvSphereDatastore = @(
+    'Host.Config.Storage',
+    'Resource.AssignVMToPool',
+    'VApp.AssignResourcePool',
+    'VApp.Import',
+    'VirtualMachine.Config.AddNewDisk'
+)
+
+$OpenShiftInstallRole = New-VIRole -Name 'OpnShftvSphereDatastore' -Privilege (Get-VIPrivilege -Id $OpnShftvSphereDatastore) | Out-Null
+Write-Host "Creating vCenter role $OpenShiftInstallRole" -ForegroundColor Green
+
+$OpnShftvSphereDatastore = @(
+    'Datastore.AllocateSpace',
+    'Datastore.Browse',
+    'Datastore.FileManagement',
+    'InventoryService.Tagging.ObjectAttachable'
+)
+
+$OpenShiftInstallRole = New-VIRole -Name 'OpnShftvSphereDatastore' -Privilege (Get-VIPrivilege -Id $OpnShftvSphereDatastore) | Out-Null
+Write-Host "Creating vCenter role $OpenShiftInstallRole" -ForegroundColor Green
+
+$OpnShftvSpherePortGroup = @(
+    'Network.Assign'
+)
+
+$OpenShiftInstallRole = New-VIRole -Name '$OpnShftvSpherePortGroup' -Privilege (Get-VIPrivilege -Id $OpnShftvSpherePortGroup) | Out-Null
+Write-Host "Creating vCenter role $OpenShiftInstallRole" -ForegroundColor Green
+
+$OpnShftVirtualMachineFolder = @(
+    'Resource.AssignVMToPool',
+    'VApp.Import',
+    'VirtualMachine.Config.AddExistingDisk',
+    'VirtualMachine.Config.AddNewDisk',
+    'VirtualMachine.Config.AddRemoveDevice',
+    'VirtualMachine.Config.AdvancedConfig',
+    'VirtualMachine.Config.Annotation',
+    'VirtualMachine.Config.CPUCount',
+    'VirtualMachine.Config.DiskExtend',
+    'VirtualMachine.Config.DiskLease',
+    'VirtualMachine.Config.EditDevice',
+    'VirtualMachine.Config.Memory',
+    'VirtualMachine.Config.RemoveDisk',
+    'VirtualMachine.Config.Rename',
+    'VirtualMachine.Config.ResetGuestInfo',
+    'VirtualMachine.Config.Resource',
+    'VirtualMachine.Config.Settings',
+    'VirtualMachine.Config.UpgradeVirtualHardware',
+    'VirtualMachine.Interact.GuestControl',
+    'VirtualMachine.Interact.PowerOff',
+    'VirtualMachine.Interact.PowerOn',
+    'VirtualMachine.Interact.Reset',
+    'VirtualMachine.Inventory.Create',
+    'VirtualMachine.Inventory.CreateFromExisting',
+    'VirtualMachine.Inventory.Delete',
+    'VirtualMachine.Provisioning.Clone'
+)
+
+$OpenShiftInstallRole = New-VIRole -Name 'OpnShftVirtualMachineFolder' -Privilege (Get-VIPrivilege -Id $OpnShftVirtualMachineFolder) | Out-Null
+Write-Host "Creating vCenter role $OpenShiftInstallRole" -ForegroundColor Green
+
+$OpnShftvSpherevCenterDatacenter = @(
+    'Resource.AssignVMToPool',
+    'VApp.Import',
+    'VirtualMachine.Config.AddExistingDisk',
+    'VirtualMachine.Config.AddNewDisk',
+    'VirtualMachine.Config.AddRemoveDevice',
+    'VirtualMachine.Config.AdvancedConfig',
+    'VirtualMachine.Config.Annotation',
+    'VirtualMachine.Config.CPUCount',
+    'VirtualMachine.Config.DiskExtend',
+    'VirtualMachine.Config.DiskLease',
+    'VirtualMachine.Config.EditDevice',
+    'VirtualMachine.Config.Memory',
+    'VirtualMachine.Config.RemoveDisk',
+    'VirtualMachine.Config.Rename',
+    'VirtualMachine.Config.ResetGuestInfo',
+    'VirtualMachine.Config.Resource',
+    'VirtualMachine.Config.Settings',
+    'VirtualMachine.Config.UpgradeVirtualHardware',
+    'VirtualMachine.Interact.GuestControl',
+    'VirtualMachine.Interact.PowerOff',
+    'VirtualMachine.Interact.PowerOn',
+    'VirtualMachine.Interact.Reset',
+    'VirtualMachine.Inventory.Create',
+    'VirtualMachine.Inventory.CreateFromExisting',
+    'VirtualMachine.Inventory.Delete',
+    'VirtualMachine.Provisioning.Clone',
+    'VirtualMachine.Provisioning.DeployTemplate',
+    'VirtualMachine.Provisioning.MarkAsTemplate',
+    'Folder.Create',
+    'Folder.Delete'
+)
+
+$OpenShiftInstallRole = New-VIRole -Name 'OpnShftvSpherevCenterDatacenter' -Privilege (Get-VIPrivilege -Id $OpnShftvSpherevCenterDatacenter) | Out-Null
+Write-Host "Creating vCenter role $OpenShiftInstallRole" -ForegroundColor Green
+
+$OpnShftAdditionalInstallPrivilege = @(
     'System.Anonymous',
     'System.View',
     'System.Read',
-    'Folder.Create',
-    'Folder.Delete',
-    'Datastore.Browse',
     'Datastore.DeleteFile',
-    'Datastore.FileManagement',
-    'Datastore.AllocateSpace',
-    'Network.Assign',
-    'VirtualMachine.Inventory.Create',
-    'VirtualMachine.Inventory.CreateFromExisting',
     'VirtualMachine.Inventory.Register',
-    'VirtualMachine.Inventory.Delete',
     'VirtualMachine.Inventory.Unregister',
     'VirtualMachine.Inventory.Move',
-    'VirtualMachine.Interact.PowerOn',
-    'VirtualMachine.Interact.PowerOff',
     'VirtualMachine.Interact.Suspend',
     'VirtualMachine.Interact.SuspendToMemory',
-    'VirtualMachine.Interact.Reset',
     'VirtualMachine.Interact.Pause',
     'VirtualMachine.Interact.AnswerQuestion',
     'VirtualMachine.Interact.ConsoleInteract',
@@ -81,7 +181,6 @@ $OpenShiftInstallPrivilege = @(
     'VirtualMachine.Interact.SetCDMedia',
     'VirtualMachine.Interact.SetFloppyMedia',
     'VirtualMachine.Interact.ToolsInstall',
-    'VirtualMachine.Interact.GuestControl',
     'VirtualMachine.Interact.DefragmentAllDisks',
     'VirtualMachine.Interact.CreateSecondary',
     'VirtualMachine.Interact.TurnOffFaultTolerance',
@@ -101,26 +200,10 @@ $OpenShiftInstallPrivilege = @(
     'VirtualMachine.GuestOperations.Execute',
     'VirtualMachine.GuestOperations.QueryAliases',
     'VirtualMachine.GuestOperations.ModifyAliases',
-    'VirtualMachine.Config.Rename',
-    'VirtualMachine.Config.Annotation',
-    'VirtualMachine.Config.AddExistingDisk',
-    'VirtualMachine.Config.AddNewDisk',
-    'VirtualMachine.Config.RemoveDisk',
     'VirtualMachine.Config.RawDevice',
     'VirtualMachine.Config.HostUSBDevice',
-    'VirtualMachine.Config.CPUCount',
-    'VirtualMachine.Config.Memory',
-    'VirtualMachine.Config.AddRemoveDevice',
-    'VirtualMachine.Config.EditDevice',
-    'VirtualMachine.Config.Settings',
-    'VirtualMachine.Config.Resource',
-    'VirtualMachine.Config.UpgradeVirtualHardware',
-    'VirtualMachine.Config.ResetGuestInfo',
     'VirtualMachine.Config.ToggleForkParent',
-    'VirtualMachine.Config.AdvancedConfig',
-    'VirtualMachine.Config.DiskLease',
     'VirtualMachine.Config.SwapPlacement',
-    'VirtualMachine.Config.DiskExtend',
     'VirtualMachine.Config.ChangeTracking',
     'VirtualMachine.Config.QueryUnownedFiles',
     'VirtualMachine.Config.ReloadFromPath',
@@ -135,12 +218,9 @@ $OpenShiftInstallPrivilege = @(
     'VirtualMachine.Hbr.ReplicaManagement',
     'VirtualMachine.Hbr.MonitorReplication',
     'VirtualMachine.Provisioning.Customize',
-    'VirtualMachine.Provisioning.Clone',
     'VirtualMachine.Provisioning.PromoteDisks',
     'VirtualMachine.Provisioning.CreateTemplateFromVM',
-    'VirtualMachine.Provisioning.DeployTemplate',
     'VirtualMachine.Provisioning.CloneTemplate',
-    'VirtualMachine.Provisioning.MarkAsTemplate',
     'VirtualMachine.Provisioning.MarkAsVM',
     'VirtualMachine.Provisioning.ReadCustSpecs',
     'VirtualMachine.Provisioning.ModifyCustSpecs',
@@ -155,17 +235,14 @@ $OpenShiftInstallPrivilege = @(
     'VirtualMachine.Namespace.ReadContent',
     'VirtualMachine.Namespace.Event',
     'VirtualMachine.Namespace.EventNotify',
-    'Resource.AssignVMToPool',
     'VApp.ResourceConfig',
     'VApp.InstanceConfig',
     'VApp.ApplicationConfig',
     'VApp.ManagedByConfig',
     'VApp.Export',
-    'VApp.Import',
     'VApp.PullFromUrls',
     'VApp.ExtractOvfEnvironment',
     'VApp.AssignVM',
-    'VApp.AssignResourcePool',
     'VApp.AssignVApp',
     'VApp.Clone',
     'VApp.Create',
@@ -176,23 +253,14 @@ $OpenShiftInstallPrivilege = @(
     'VApp.PowerOff',
     'VApp.Suspend',
     'VApp.Rename',
-    'InventoryService.Tagging.AttachTag',
     'InventoryService.Tagging.ModifyUsedByForCategory',
-    'InventoryService.Tagging.DeleteCategory',
-    'InventoryService.Tagging.EditTag',
     'InventoryService.Tagging.ModifyUsedByForTag',
-    'InventoryService.Tagging.CreateTag',
-    'InventoryService.Tagging.DeleteTag',
-    'InventoryService.Tagging.ObjectAttachable',
-    'StorageProfile.Update',
-    'StorageProfile.View',
-    'InventoryService.Tagging.EditCategory',
-    'InventoryService.Tagging.CreateCategory'
+    'StorageProfile.Update'
 )
-$OpenShiftInstallRole = New-VIRole -Name 'OpenShift-Install' -Privilege (Get-VIPrivilege -Id $OpenShiftInstallPrivilege) | Out-Null
+
+$OpenShiftInstallRole = New-VIRole -Name 'OpnShftAdditionalInstallPrivilege' -Privilege (Get-VIPrivilege -Id $OpnShftAdditionalInstallPrivilege) | Out-Null
 Write-Host "Creating vCenter role $OpenShiftInstallRole" -ForegroundColor Green
 
 # Disconnecting from the vCenter Server
 Disconnect-VIServer -Confirm:$false
 Write-Host "Disconnected from your vCenter Server $vCenterServer" -ForegroundColor Green
- 
