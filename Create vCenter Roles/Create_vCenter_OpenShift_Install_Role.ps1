@@ -68,7 +68,7 @@ $OpnShftvSpherevCenter = @(
 $OpenShiftInstallRole = New-VIRole -Name 'OpnShftvSpherevCenter' -Privilege (Get-VIPrivilege -Id $OpnShftvSpherevCenter) | Out-Null
 Write-Host "Creating vCenter role $OpenShiftInstallRole" -ForegroundColor Green
 
-$OpnShftvSphereDatastore = @(
+$OpnShftvSpherevCenterCluster = @(
     'Host.Config.Storage',
     'Resource.AssignVMToPool',
     'VApp.AssignResourcePool',
@@ -76,7 +76,7 @@ $OpnShftvSphereDatastore = @(
     'VirtualMachine.Config.AddNewDisk'
 )
 
-$OpenShiftInstallRole = New-VIRole -Name 'OpnShftvSphereDatastore' -Privilege (Get-VIPrivilege -Id $OpnShftvSphereDatastore) | Out-Null
+$OpenShiftInstallRole = New-VIRole -Name 'OpnShftvSpherevCenterCluster' -Privilege (Get-VIPrivilege -Id $OpnShftvSpherevCenterCluster) | Out-Null
 Write-Host "Creating vCenter role $OpenShiftInstallRole" -ForegroundColor Green
 
 $OpnShftvSphereDatastore = @(
